@@ -1,51 +1,23 @@
+# book.py
+from dataclasses import dataclass, field, asdict
+from typing import Dict, List
 import json
 
+@dataclass
 class Book:
-    def __init__(self, name_book=None, author=None, illustrator=None, volumes=None, URL=None):
-        self.name_book = name_book
-        self.author = author
-        self.illustrator = illustrator
-        self.volumes = volumes
+    name_book: str = ""
+    author: str = ""
+    illustrator: str = ""
+    volumes: Dict[str, List[Dict]] = field(default_factory=dict)
+    url: str = ""
+    cover_url: str = ""
 
-    # Phần Get (Đã có sẵn trong yêu cầu của bạn, chỉ để đầy đủ)
-    def get_name_book(self):
-        return self.name_book
+    def to_dict(self):
+        return asdict(self)
 
-    def get_author(self):
-        return self.author
+    def to_json(self, indent=4):
+        return json.dumps(self.to_dict(), ensure_ascii=False, indent=indent)
 
-    def get_illustrator(self):
-        return self.illustrator
-
-    def get_volumes(self):
-        return self.volumes
-    
-    def get_info_to_dict(self):
-        value = {
-            'name_book': self.name_book,
-            'author': self.author,
-            'illustrator': self.illustrator,
-            'volumes': self.volumes
-        }
-        return value
-    
-    def get_info_to_json(self):
-        value = self.get_info_to_dict()
-        return json.dumps(value, indent=4, ensure_ascii=False)
-
-    # Phần Set (Setter)
-    
-    def set_name_book(self, name):
-        """Thiết lập tên sách."""
-        self.name_book = name
-    
-    def set_author(self, author):
-        """Thiết lập tác giả."""
-        self.author = author
-    
-    def set_illustrator(self, illustrator):
-        """Thiết lập họa sĩ minh họa."""
-        self.illustrator = illustrator
-    
-    def set_volumes(self, volumes):
-        self.volumes = volumes
+    def save_json(self, path):
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(self.to_json())
