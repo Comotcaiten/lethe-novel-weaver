@@ -73,6 +73,33 @@ class MetadataCrawler:
                 elif "Họa sĩ" in label or "Minh họa" in label:
                     illustrator = value
 
+        series_summary = soup.select_one(".series-summary")
+        title_summary = f"{series_summary.select_one("h4").get_text()}"
+        summary_contents = series_summary.select_one(".summary-content")
+        summary_content = []
+
+        for child in summary_contents.children:
+            summary_content.append(f"<p>{child.get_text()}</p>")
+
+        # print("title_summary: ", title_summary)
+        # print("content_summary: ", summary_content)
+
+        other_fact = []
+        other_fact_src = soup.select(".other-facts")
+        for fact in other_fact_src:
+            # print(fact)
+            title_fact = fact.select_one(".fact-name")
+            fact_value = fact.select_one(".fact-value")
+            fact_content = []
+            for content in fact_value.children:
+                fact_content.append(f"<div>{content.get_text()}</div>")
+            other_fact.append({
+                "fact_name": f"{title_fact}",
+                "fact_value": fact_content
+            })
+        
+        # print(other_fact)
+
         section_volume_list = soup.select("section.volume-list")
         logger.info("Found %d volume sections", len(section_volume_list))
 
@@ -91,7 +118,24 @@ class MetadataCrawler:
                 })
             volume_list[vol_title] = chapters
 
-        book = Book(name_book=name_book, cover_url=cover_url, author=author, illustrator=illustrator, volumes=volume_list, url=self.url)
+        book = Book(
+                name_book=name_book, 
+                cover_url=cover_url, 
+                author=author, 
+                illustrator=illustrator, 
+                volumes=volume_list, 
+                url=self.url
+            )
+        
+        book.summary_wrapper.series_summary["title"] = title_summary
+        book.summary_wrapper.series_summary["summary-content"] = summary_content
+
+        
+        book.summary_wrapper.other_facts = other_fact
+
+        # print(book.to_json)
+        book.to_json(4)
+
         return book
 
 def extract_cover_url(soup):

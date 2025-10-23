@@ -19,7 +19,11 @@ class EpubExporter:
         return re.sub(r'[^a-zA-Z0-9]+', '_', name).strip('_') or "untitled"
 
     def export(self, output_file: str = "novel.epub"):
+        
         epub_book = epub.EpubBook()
+        epub_items = []
+        img_counter = 1
+
         epub_book.set_identifier(self._safe_filename(self.book.name_book) or "ln-hako")
         epub_book.set_title(self.book.name_book or "Light Novel")
         epub_book.set_language("vi")
@@ -44,8 +48,32 @@ class EpubExporter:
                     except Exception as e:
                         print(f"⚠️ Không thể tải ảnh bìa: {e}")
 
-        epub_items = []
-        img_counter = 1
+        # =======================================================
+        # 🧩 THÊM PHẦN SUMMARY WRAPPER Ở ĐÂY
+        # =======================================================
+        if hasattr(self.book, "summary_wrapper") and self.book.summary_wrapper:
+            summary = self.book.summary_wrapper
+            html_content = "<h1 align='center'>Tóm tắt & Thông tin</h1>"
+
+            # Tóm tắt chính
+            if summary.series_summary:
+                html_content += f"<h2>{summary.series_summary['title']}</h2>"
+                html_content += "".join(summary.series_summary["summary-content"])
+
+            # Các mục thông tin khác (other_facts)
+            if summary.other_facts:
+                html_content += "<h2>Thông tin khác</h2>"
+                for fact in summary.other_facts:
+                    html_content += f"<div>{fact['fact_name']}</div>"
+                    html_content += "".join(fact["fact_value"])
+
+            summary_page = epub.EpubHtml(title="Giới thiệu", file_name="summary.xhtml", lang="vi")
+            summary_page.content = html_content
+            epub_book.add_item(summary_page)
+            epub_items.append(summary_page)
+            print("✅ Đã thêm phần Summary vào EPUB")
+
+
 
         for vol_title, chapters in self.book.volumes.items():
             vol_filename = self._safe_filename(vol_title)
@@ -74,4 +102,7 @@ class EpubExporter:
         epub_book.spine = ["nav"] + epub_items
 
         epub.write_epub(output_file, epub_book, {})
+
+        # self.book.save_json(f"{self.book.name_book}.json")
+        
         logger.info("Exported EPUB to %s", output_file)

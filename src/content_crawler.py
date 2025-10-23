@@ -95,7 +95,7 @@ class ContentCrawler:
 
                 else:
                     # Không có ảnh => xử lý text bình thường
-                    print(child)
+                    # print(child)
                     text = child.get_text(strip=True)
                     if text:
                         html_parts.append(f"<p>{text}</p>")
