@@ -19,13 +19,46 @@ class Crawl:
         author = ''
         illustrator = ''
         volume_list = {}
+        cover_url = None
 
         url = self.URL
         res = self.get_requests(url)
         soup = BeautifulSoup(res.text, "html.parser")
 
+        # Tên tiểu thuyết
         name_book = soup.select(".series-name")[0].get_text(strip=True)
 
+        # ── Lấy ảnh bìa ──────────────────────────────────────────────
+        # Ưu tiên 1: thẻ <div class="img-in-ratio"> với data-bg hoặc style background
+        cover_tag = soup.select_one(".img-in-ratio")
+        if cover_tag:
+            cover_url = (
+                cover_tag.get("data-bg")
+                or cover_tag.get("data-src")
+                or cover_tag.get("data-lazy-bg")
+            )
+            if not cover_url:
+                # fallback: parse inline style="background-image: url(...)"
+                style = cover_tag.get("style", "")
+                m = re.search(r'url\(["\']?(.*?)["\']?\)', style)
+                if m:
+                    cover_url = m.group(1)
+
+        # Ưu tiên 2: og:image meta tag (luôn có và đáng tin cậy)
+        if not cover_url:
+            og = soup.select_one('meta[property="og:image"]')
+            if og:
+                cover_url = og.get("content")
+
+        # Chuẩn hoá URL
+        if cover_url:
+            cover_url = urljoin(self.BASE_URL, cover_url)
+            cover_url = cover_url.replace("i.hako.vn", "i2.hako.vip")
+            print(f"🖼️  Bìa tìm thấy: {cover_url}")
+        else:
+            print("⚠️  Không tìm thấy ảnh bìa.")
+
+        # Tác giả, hoạ sĩ
         info = soup.select_one("div.series-information")
         if info:
             for div in info.select("div.info-item"):
@@ -36,6 +69,7 @@ class Crawl:
                 elif "Họa sĩ" in label or "Minh họa" in label:
                     illustrator = value
 
+        # Volume / chương
         section_volume_list = soup.select("section.volume-list")
         print(f"📖 Tìm thấy {len(section_volume_list)} volume section.\n")
 
@@ -56,11 +90,12 @@ class Crawl:
             author=author,
             illustrator=illustrator,
             volumes=volume_list,
+            cover_url=cover_url,
             URL=self.URL
         )
 
     # -------------------------
-    # Crawl nội dung 1 chương dùng Playwright (nội dung render bằng JS/Livewire)
+    # Crawl nội dung 1 chương (Playwright vì Livewire render JS)
     # -------------------------
     def crawl_chapter(self, ch_url, epub_book, img_counter):
         print(f"  📄 Crawling: {ch_url}")
@@ -68,7 +103,6 @@ class Crawl:
         html = self.get_html_rendered(ch_url)
         soup = BeautifulSoup(html, "html.parser")
 
-        # Tiêu đề chương
         title_tag = soup.select_one("h4.title-item") or soup.select_one("h1.chapter-title")
         title = title_tag.get_text(strip=True) if title_tag else "Không có tiêu đề"
 
@@ -119,7 +153,7 @@ class Crawl:
         return {"title": title, "content": "\n".join(html_parts)}, img_counter
 
     # -------------------------
-    # Tạo EPUB
+    # Tạo EPUB (kèm ảnh bìa)
     # -------------------------
     def create_epub(self, volume_list, output_file="novel.epub"):
         book = epub.EpubBook()
@@ -128,6 +162,27 @@ class Crawl:
         book.set_language("vi")
         if self.book and self.book.get_author():
             book.add_author(self.book.get_author())
+
+        # ── Đặt ảnh bìa ──────────────────────────────────────────────
+        cover_url = self.book.get_cover_url() if self.book else None
+        if cover_url:
+            try:
+                headers = {"User-Agent": "Mozilla/5.0", "Referer": self.BASE_URL}
+                cover_data = requests.get(cover_url, headers=headers, timeout=15).content
+
+                # Xác định đuôi file từ URL
+                ext = cover_url.split("?")[0].rsplit(".", 1)[-1].lower()
+                mime_map = {"jpg": "image/jpeg", "jpeg": "image/jpeg",
+                            "png": "image/png", "webp": "image/webp"}
+                mime = mime_map.get(ext, "image/jpeg")
+                cover_filename = f"cover.{ext}"
+
+                book.set_cover(cover_filename, cover_data, create_page=True)
+                print(f"✅ Đã đặt ảnh bìa: {cover_filename} ({mime})")
+            except Exception as e:
+                print(f"⚠️  Không tải được ảnh bìa: {e}")
+        else:
+            print("⚠️  Bỏ qua bìa (không có URL).")
 
         epub_chapters = []
         img_counter = 1
@@ -160,8 +215,10 @@ class Crawl:
         book.add_item(epub.EpubNcx())
         book.add_item(epub.EpubNav())
         book.spine = ["nav"] + epub_chapters
+        
+        direction = "/lib/hako/"
 
-        epub.write_epub(output_file, book, {})
+        epub.write_epub(direction + output_file, book, {})
         print(f"\n✅ Đã tạo file: {output_file}")
 
     # -------------------------
@@ -171,14 +228,13 @@ class Crawl:
         headers = {"User-Agent": "Mozilla/5.0"}
         res = requests.get(url, headers=headers)
         if res.status_code != 200:
-            print("❌ Không tải được trang chính.")
+            print("❌ Không tải được trang.")
         return res
 
     def get_html_rendered(self, url):
         """
-        Dùng Playwright để render JavaScript trước khi parse.
-        Bắt buộc vì ln.hako.vn dùng Livewire — #chapter-content
-        KHÔNG có trong HTML tĩnh, chỉ xuất hiện sau khi JS chạy xong.
+        Playwright để lấy HTML sau khi JS render xong.
+        Bắt buộc với trang chương vì dùng Livewire.
         """
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
