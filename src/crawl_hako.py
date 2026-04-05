@@ -131,7 +131,7 @@ class Crawl:
                         print(f"  🖼️  Ảnh: {img_url}")
                         try:
                             headers = {"User-Agent": "Mozilla/5.0", "Referer": ch_url}
-                            img_data = requests.get(img_url, headers=headers, timeout=15).content
+                            img_data = requests.get(img_url, headers=headers, timeout=120).content
                             img_name = f"image_{img_counter}.jpg"
                             img_counter += 1
                             img_item = epub.EpubImage()
@@ -168,7 +168,7 @@ class Crawl:
         if cover_url:
             try:
                 headers = {"User-Agent": "Mozilla/5.0", "Referer": self.BASE_URL}
-                cover_data = requests.get(cover_url, headers=headers, timeout=15).content
+                cover_data = requests.get(cover_url, headers=headers, timeout=120).content
 
                 # Xác định đuôi file từ URL
                 ext = cover_url.split("?")[0].rsplit(".", 1)[-1].lower()
@@ -239,7 +239,7 @@ class Crawl:
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
             page = browser.new_page()
-            page.goto(url, wait_until="networkidle", timeout=60000)
+            page.goto(url, wait_until="networkidle", timeout=120000)
             try:
                 page.wait_for_function(
                     """
@@ -248,7 +248,7 @@ class Crawl:
                         return el && el.innerText.trim().length > 200;
                     }
                     """,
-                    timeout=15000
+                    timeout=120000
                 )
             except Exception as e:
                 print(f"  ⚠️  Timeout khi chờ #chapter-content: {e}")

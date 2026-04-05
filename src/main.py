@@ -56,12 +56,6 @@ datasets = [
     "https://ln.hako.vn/ai-dich/25497-anh-trai-em-la-ma-phap-thieu-nu-thi-co-van-de-gi-sao",
 ]
 
-datasets_part2 = [
-    #朝起きたら超絶美少女になっていた俺ですが、男嫌いだった毒舌妹の様子がおかしくて貞操の危機です。（たまやん） - カクヨム
-    "https://ln.hako.vn/ai-dich/25379-sang-thuc-day-toi-da-bien-thanh-mot-my-thieu-nu-tuyet-tran-nhung-dua-em-gai-doc-mom-doc-mieng-von-ghet-dan-ong-cua-toi-lai-co-bieu-hien-ky-la-trinh-tiet-cua-toi-gap-nguy-hiem",
-    "https://ln.hako.vn/ai-dich/25765-doi-truong-raid-cua-ban",
-]
-
 if __name__ == "__main__":
     # URL = "https://ln.hako.vn/truyen/23373-nguoi-tro-chuyen-thau-dem-voi-thang-it-noi-nhu-toi-lai-la-nu-than-hoan-hao-nhat-lop"
     for url in datasets:
