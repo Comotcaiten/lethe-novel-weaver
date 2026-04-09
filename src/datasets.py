@@ -9,6 +9,8 @@ datasets_genderbender = [
     #https://kakuyomu.jp/works/16816452221279498067
     "https://ln.hako.vn/ai-dich/18864-destiny-unchain-online",
     "https://ln.hako.vn/ai-dich/24017-bien-thanh-loli-toc-tim-mo-dau-cong-luoc-nang-hoa-khoi-lanh-lung-cua-truong",
+    # # have R18 content
+    # "https://ln.hako.vn/ai-dich/24526-nay-quy-co-phan-dien-tha-thinh-nu-chinh-lung-tung-la-bi-xu-dep-day-biet-khong",
 ]
 
 datasets_romance = [

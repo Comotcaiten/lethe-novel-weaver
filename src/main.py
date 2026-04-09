@@ -1,29 +1,33 @@
 from book import Book
 from crawl_hako import Crawl
+
+from datasets import datasets_genderbender
 # -------------------------
 # Main
 # -------------------------
 
 datasets = [
-    "https://ln.hako.vn/ai-dich/24372-con-dien-o-cai-vo-lam-nay-la-tao-day",
-    "https://ln.hako.vn/truyen/25135-idol-toi-phu-trach-bi-lo-chuyen-hen-ho-nhung-ma-chang-he-han-gi-het-vi-doi-phuong-la-toi-co-quan-ly-dang-gia-trai-ma",
-    "https://ln.hako.vn/ai-dich/22016-thien-than-sieu-cap-lac-quan-se-phu-trach-cham-soc-tinh-than-cho-ma-phap-thieu-nu",
-    "https://ln.hako.vn/truyen/17578-du-cac-nguoi-co-goi-ta-ve-long-hay-khong-ta-van-se-di-ngu",
-    "https://ln.hako.vn/ai-dich/24168-du-cac-nguoi-co-tha-goi-ta-la-ve-long-hay-gi-di-nua-thi-ta-van-se-di-ngu",
-    "https://ln.hako.vn/ai-dich/25266-the-gioi-gia-toc",
-    "https://ln.hako.vn/truyen/24945-quai-vat-cap-tai-uong-muon-duoc-rong-choi",
-    "https://ln.hako.vn/truyen/25627-top-stars-want-to-possess-me",
-    "https://ln.hako.vn/truyen/20337-the-societys-pet-daughter",
-    "https://ln.hako.vn/ai-dich/24249-phi-thuy-chi-kiem",
-    "https://ln.hako.vn/ai-dich/25503-chu-tich-bay-tuoi",
-    "https://ln.hako.vn/ai-dich/20177-tro-thanh-phu-thuy-trong-the-gioi-tran-ngap-ma-quai",
-    "https://ln.hako.vn/truyen/25043-xuyen-thanh-mot-nu-phu-phan-dien-toi-da-tro-thanh-mot-loli-yandere",
-    "https://ln.hako.vn/ai-dich/25779-cai-tao-ac-nu",
-    "https://ln.hako.vn/ai-dich/22448-ac-tam-trong-co-nang-khong-gioi-han",
-    "https://ln.hako.vn/ai-dich/23607-nhung-nu-chinh-truyen-ma-am-anh-toi",
-    "https://ln.hako.vn/truyen/19092-dai-nana-maouji-jirubagiasu-no-maou-keikoku-ki",
-    "https://ln.hako.vn/truyen/22136-man-cap-xuyen-khong-tai-sao-toi-lai-thanh-tieu-thu-muc-su-chu",
-    "https://ln.hako.vn/ai-dich/24526-nay-quy-co-phan-dien-tha-thinh-nu-chinh-lung-tung-la-bi-xu-dep-day-biet-khong",
+    # "https://ln.hako.vn/ai-dich/24372-con-dien-o-cai-vo-lam-nay-la-tao-day",
+    # "https://ln.hako.vn/truyen/25135-idol-toi-phu-trach-bi-lo-chuyen-hen-ho-nhung-ma-chang-he-han-gi-het-vi-doi-phuong-la-toi-co-quan-ly-dang-gia-trai-ma",
+    # "https://ln.hako.vn/ai-dich/22016-thien-than-sieu-cap-lac-quan-se-phu-trach-cham-soc-tinh-than-cho-ma-phap-thieu-nu",
+    # "https://ln.hako.vn/truyen/17578-du-cac-nguoi-co-goi-ta-ve-long-hay-khong-ta-van-se-di-ngu",
+    # "https://ln.hako.vn/ai-dich/24168-du-cac-nguoi-co-tha-goi-ta-la-ve-long-hay-gi-di-nua-thi-ta-van-se-di-ngu",
+    # "https://ln.hako.vn/ai-dich/25266-the-gioi-gia-toc",
+    # "https://ln.hako.vn/truyen/24945-quai-vat-cap-tai-uong-muon-duoc-rong-choi",
+    # "https://ln.hako.vn/truyen/25627-top-stars-want-to-possess-me",
+    # "https://ln.hako.vn/truyen/20337-the-societys-pet-daughter",
+    # "https://ln.hako.vn/ai-dich/24249-phi-thuy-chi-kiem",
+    # "https://ln.hako.vn/ai-dich/25503-chu-tich-bay-tuoi",
+    # "https://ln.hako.vn/ai-dich/20177-tro-thanh-phu-thuy-trong-the-gioi-tran-ngap-ma-quai",
+    # "https://ln.hako.vn/truyen/25043-xuyen-thanh-mot-nu-phu-phan-dien-toi-da-tro-thanh-mot-loli-yandere",
+    # "https://ln.hako.vn/ai-dich/25779-cai-tao-ac-nu",
+    # "https://ln.hako.vn/ai-dich/22448-ac-tam-trong-co-nang-khong-gioi-han",
+    # "https://ln.hako.vn/ai-dich/23607-nhung-nu-chinh-truyen-ma-am-anh-toi",
+    # "https://ln.hako.vn/truyen/19092-dai-nana-maouji-jirubagiasu-no-maou-keikoku-ki",
+    #
+    # # to much
+    # "https://ln.hako.vn/truyen/22136-man-cap-xuyen-khong-tai-sao-toi-lai-thanh-tieu-thu-muc-su-chu",
+    
     "https://ln.hako.vn/ai-dich/19723-ky-si-da-tai-sinh-thanh-ho-ly-nho",
     "https://ln.hako.vn/truyen/11815-orc-eiyuu-monogatari-sontaku-retsuden",
     "https://ln.hako.vn/truyen/8377-orc-eiyuu-monogatari-sontaku-retsuden",
@@ -58,6 +62,6 @@ datasets = [
 
 if __name__ == "__main__":
     # URL = "https://ln.hako.vn/truyen/23373-nguoi-tro-chuyen-thau-dem-voi-thang-it-noi-nhu-toi-lai-la-nu-than-hoan-hao-nhat-lop"
-    for url in datasets:
+    for url in datasets_genderbender:
         crawl = Crawl(url)
         crawl.start()
